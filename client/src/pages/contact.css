@@ -1,0 +1,85 @@
+/* contact.css */
+
+.contact-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #ffffff; /* White background */
+  color: #333; /* Dark text for contrast */
+  font-family: "Poppins", sans-serif;
+  padding: 20px;
+}
+
+.contact-content {
+  background: #f9f9f9; /* Light gray for subtle contrast */
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  text-align: center;
+  border: 1px solid #ddd; /* Light border */
+}
+
+.contact-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #007bff; /* Blue accent */
+}
+
+.contact-content p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.contact-content h2 {
+  font-size: 1.8rem;
+  margin-top: 20px;
+  color: #007bff;
+}
+
+.contact-content strong {
+  color: #333;
+}
+
+.contact-content ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.contact-content ul li {
+  display: inline;
+}
+
+.contact-content ul li a {
+  text-decoration: none;
+  color: #007bff;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+.contact-content ul li a:hover {
+  color: #0056b3; /* Darker blue on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-content {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .contact-content h1 {
+    font-size: 2rem;
+  }
+
+  .contact-content p {
+    font-size: 1rem;
+  }
+}

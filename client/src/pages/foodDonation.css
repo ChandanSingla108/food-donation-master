@@ -1,0 +1,111 @@
+/* FoodDonation.css */
+
+.foodDonation_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background: #f5f7fa; /* Soft background */
+    font-family: "Poppins", sans-serif;
+    padding: 30px;
+  }
+  
+  .foodDonation_heading {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .heading-foodd {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #007bff; /* Blue accent */
+  }
+  
+  .foodDonation_wrapper {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  
+  .food-donation_form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form_element {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .form_element label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
+  
+  .form_element input,
+  .form_element select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #f9f9f9;
+    transition: 0.3s ease;
+  }
+  
+  .form_element input:focus,
+  .form_element select:focus {
+    border-color: #007bff;
+    outline: none;
+    background: #ffffff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+  }
+  
+  #foodDonation_submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  #foodDonation_submit-btn:hover {
+    background: #0056b3;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .foodDonation_wrapper {
+      max-width: 90%;
+      padding: 20px;
+    }
+  
+    .heading-foodd {
+      font-size: 2rem;
+    }
+  }
+  
+  .success-message {
+    background-color: #d4edda; /* Light green */
+    color: #155724; /* Dark green */
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #c3e6cb;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
