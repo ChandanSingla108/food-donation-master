@@ -111,6 +111,17 @@
   font-weight: 500;
   color: #333;
   margin: 0;
+  margin-bottom: 5px;
+}
+
+.user-role {
+  display: inline-block;
+  font-size: 0.9rem;
+  background-color: #225B5C;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 15px;
+  margin-top: 5px;
 }
 
 .logout-item {

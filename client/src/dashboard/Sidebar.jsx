@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FaHome, FaUser, FaListAlt, FaHandsHelping, FaTimes, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaUser, FaListAlt, FaHandsHelping, FaTimes, FaSignOutAlt, FaMapMarkedAlt } from "react-icons/fa";
 import "./Sidebar.css";
 
 const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
@@ -19,23 +19,43 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
 
   const email = localStorage.getItem("email");
 
-  const sideItems = [
-    {
-      text: "Home",
-      logo: <FaHome />,
-      path: "/dashboard",
-    },
-    {
-      text: "Food",
-      logo: <FaListAlt />,
-      path: "/dashboard/food",
-    },
-    {
-      text: "Profile",
-      logo: <FaUser />,
-      path: "/dashboard/profile",
-    },
-  ];
+  // Different menu items based on user role
+  const getSideItems = () => {
+    const baseItems = [
+      {
+        text: "Home",
+        logo: <FaHome />,
+        path: "/dashboard",
+      },
+      {
+        text: "Profile",
+        logo: <FaUser />,
+        path: "/dashboard/profile",
+      },
+      {
+        text: "All Food",
+        logo: <FaListAlt />,
+        path: "/dashboard/food",
+      },
+    ];
+    
+    // Add different options based on user role
+    if (userData?.role === 'donor') {
+      baseItems.splice(1, 0, {
+        text: "Donate Food",
+        logo: <FaHandsHelping />,
+        path: "/dashboard",
+      });
+    } else if (userData?.role === 'needy') {
+      baseItems.splice(1, 0, {
+        text: "Nearby Food",
+        logo: <FaMapMarkedAlt />,
+        path: "/dashboard/nearby",
+      });
+    }
+    
+    return baseItems;
+  };
 
   useEffect(() => {
     setActive(pathname.substring(1));
@@ -72,11 +92,14 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
       {userData && (
         <div className="user-welcome">
           <p>Welcome, {userData.name}</p>
+          <span className="user-role">
+            {userData.role === 'donor' ? '🤲 Donor' : '🍽️ Food Recipient'}
+          </span>
         </div>
       )}
       
       <div className="sidebar-body">
-        {sideItems.map((item, index) => (
+        {getSideItems().map((item, index) => (
           <div
             key={index}
             className={`sidebar-item ${active === item.path.substring(1) ? "active" : ""}`}

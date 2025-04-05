@@ -103,6 +103,27 @@
     color: #666;
 }
 
+.role-message {
+    padding: 15px;
+    margin: 0 0 20px 0;
+    border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+.role-message.donor {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 4px solid #4CAF50;
+}
+
+.role-message.recipient {
+    background-color: rgba(33, 150, 243, 0.1);
+    border-left: 4px solid #2196F3;
+}
+
+.role-message p {
+    margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
     .food-grid {

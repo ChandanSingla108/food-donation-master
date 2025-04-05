@@ -9,6 +9,7 @@ const Signup = () => {
     email: "",
     password: "",
     number: "",
+    role: "donor", // Default role is donor
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,22 +31,26 @@ const Signup = () => {
       email: formData.email,
       password: formData.password,
       number: formData.number,
+      role: formData.role,
     };
 
     try {
-      // Sign up the user
       const response = await axios.post("http://localhost:3000/signup", data);
-      console.log("Signup successful", response.data);
       
-      // Store user data and token in localStorage for session management
-      localStorage.setItem("user", JSON.stringify(response.data.newUser));
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("email", response.data.newUser.email);
-      
-      // Redirect to dashboard after successful signup
-      navigate("/dashboard");
+      if (response.data && response.data.token) {
+        localStorage.setItem("user", JSON.stringify(response.data.newUser || response.data.user));
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("email", data.email);
+        
+        window.dispatchEvent(new Event('storage'));
+        
+        alert("Signup successful! Welcome to Food Donation.");
+        
+        navigate("/dashboard");
+      } else {
+        setError("Signup successful but received unexpected response. Please try logging in.");
+      }
     } catch (err) {
-      console.error("Signup failed:", err);
       setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
@@ -99,6 +104,35 @@ const Signup = () => {
             id="phone"
             required
           />
+
+          <div className="role-selection">
+            <label className="role-label">I want to:</label>
+            <div className="role-options">
+              <label className={`role-option ${formData.role === 'donor' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="donor"
+                  checked={formData.role === 'donor'}
+                  onChange={handleChange}
+                />
+                <span className="role-icon">🤲</span>
+                <span className="role-text">Donate Food</span>
+              </label>
+              
+              <label className={`role-option ${formData.role === 'needy' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="needy"
+                  checked={formData.role === 'needy'}
+                  onChange={handleChange}
+                />
+                <span className="role-icon">🍽️</span>
+                <span className="role-text">Receive Food</span>
+              </label>
+            </div>
+          </div>
 
           <button type="submit" id="signup-btn" disabled={loading}>
             {loading ? "Creating Account..." : "Sign Up"}

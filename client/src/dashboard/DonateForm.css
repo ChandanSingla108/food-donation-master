@@ -1,0 +1,515 @@
+.donate-form-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.donate-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.donate-header h1 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 2rem;
+}
+
+.donate-intro {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.form-preview-container {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.form-container {
+  flex: 1;
+}
+
+.preview-container {
+  width: 350px;
+  position: sticky;
+  top: 20px;
+}
+
+.preview-container h3 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.donate-form {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group svg {
+  color: #007bff;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Improved food type selector */
+.food-type-group {
+  margin-bottom: 30px;
+}
+
+.food-type-options {
+  display: flex;
+  gap: 15px;
+}
+
+.food-type-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.food-type-option:hover {
+  background-color: #f8f9fa;
+}
+
+.food-type-option.selected {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.food-type-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.food-type-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.food-type-indicator.veg {
+  background-color: #4caf50;
+}
+
+.food-type-indicator.non-veg {
+  background-color: #f44336;
+}
+
+/* Error and success messages */
+.error-message, .success-message {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* Form actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.submit-btn, .cancel-btn, .preview-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.submit-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.preview-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.preview-btn:hover {
+  background-color: #0069d9;
+}
+
+.cancel-btn {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #ddd;
+}
+
+.cancel-btn:hover {
+  background-color: #e2e6ea;
+}
+
+/* Address input with location button */
+.address-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.address-input-group input {
+  flex: 1;
+  cursor: default;
+  background-color: #f8f9fa;
+}
+
+.location-dialog-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 15px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.location-dialog-btn:hover {
+  background-color: #0069d9;
+}
+
+/* Location Dialog */
+.location-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.location-dialog {
+  background-color: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.location-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.location-dialog-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.close-dialog-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-dialog-btn:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.location-dialog-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.location-search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.location-search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.location-search-bar input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.current-location-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.current-location-btn:hover {
+  background-color: #218838;
+}
+
+.map-container {
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+}
+
+.map-instruction {
+  background-color: #f8f9fa;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.location-suggestions {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.location-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.location-item:hover {
+  background-color: #f8f9fa;
+  border-color: #ddd;
+}
+
+.selected-address {
+  background-color: #e9f7ef;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.confirm-location-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.confirm-location-btn:hover {
+  background-color: #0069d9;
+}
+
+.confirm-location-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.searching-indicator {
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  padding: 5px;
+}
+
+.location-dialog-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cancel-dialog-btn {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-dialog-btn:hover {
+  background-color: #e9ecef;
+}
+
+/* Responsive design */
+@media (max-width: 992px) {
+  .form-preview-container {
+    flex-direction: column;
+  }
+  
+  .preview-container {
+    width: 100%;
+    position: static;
+    max-width: 350px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .donate-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .donate-form {
+    padding: 20px;
+  }
+  
+  .food-type-options {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 576px) {
+  .donate-form-container {
+    padding: 15px 10px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .submit-btn, .cancel-btn, .preview-btn {
+    width: 100%;
+  }
+  
+  .location-search-input {
+    flex-direction: column;
+  }
+  
+  .location-search-bar {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .current-location-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+  }
+  
+  .location-dialog {
+    width: 95%;
+  }
+  
+  .location-dialog-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .cancel-dialog-btn, .confirm-location-btn {
+    width: 100%;
+  }
+}

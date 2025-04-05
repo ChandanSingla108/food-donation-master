@@ -1,7 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { FaMapMarkerAlt, FaExclamationTriangle } from "react-icons/fa";
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import "./FoodDonation.css";
+
+// Fix leaflet icon issues
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+// Map marker component with click events
+function LocationMarker({ position, setPosition }) {
+  useMapEvents({
+    click: async (e) => {
+      const { lat, lng } = e.latlng;
+      setPosition([lat, lng]);
+    }
+  });
+
+  return position ? <Marker position={position} /> : null;
+}
 
 function FoodDonation() {
   const [foodName, setFoodName] = useState("");
@@ -9,10 +33,15 @@ function FoodDonation() {
   const [quantity, setQuantity] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [address, setAddress] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const [mapCenter, setMapCenter] = useState([20.5937, 78.9629]); // Default to center of India
+  const [mapZoom, setMapZoom] = useState(5);
+  const [locationStatus, setLocationStatus] = useState("idle"); // idle, detecting, success, error
+  const [locationError, setLocationError] = useState("");
+
   const navigate = useNavigate();
   const email = localStorage.getItem("email");
   const token = localStorage.getItem("token");
@@ -23,6 +52,104 @@ function FoodDonation() {
       navigate("/login");
     }
   }, [token, navigate]);
+
+  // Function to detect user's location
+  const detectUserLocation = useCallback(() => {
+    setLocationStatus("detecting");
+    setLocationError("");
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          setUserLocation({
+            lat: latitude,
+            lng: longitude,
+            coordinates: [longitude, latitude] // [longitude, latitude] format for MongoDB
+          });
+          
+          setMapCenter([latitude, longitude]);
+          setMapZoom(15);
+          
+          // Reverse geocode to get address from coordinates
+          try {
+            const response = await axios.get(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+            
+            if (response.data && response.data.display_name) {
+              setAddress(response.data.display_name);
+              setLocationStatus("success");
+            }
+          } catch (error) {
+            console.error("Error getting address from coordinates:", error);
+            setLocationStatus("success"); // Still mark as success since we got coordinates
+          }
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          let errorMsg = "Unable to detect your location.";
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMsg = "Location permission denied. Please enable location services.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMsg = "Location information unavailable. Please try again.";
+              break;
+            case error.TIMEOUT:
+              errorMsg = "Location request timed out. Please try again.";
+              break;
+          }
+          
+          setLocationError(errorMsg);
+          setLocationStatus("error");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by this browser.");
+      setLocationStatus("error");
+    }
+  }, []);
+
+  // Try to get user location on component mount
+  useEffect(() => {
+    if (token) {
+      detectUserLocation();
+    }
+  }, [token, detectUserLocation]);
+
+  // Update form data when marker position changes
+  const handleMarkerPosition = useCallback((position) => {
+    if (position) {
+      setUserLocation({
+        lat: position[0],
+        lng: position[1],
+        coordinates: [position[1], position[0]] // [lng, lat] for MongoDB
+      });
+      
+      // Reverse geocode to get address
+      (async () => {
+        try {
+          const response = await axios.get(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position[0]}&lon=${position[1]}&zoom=18&addressdetails=1`
+          );
+          
+          if (response.data && response.data.display_name) {
+            setAddress(response.data.display_name);
+          }
+        } catch (error) {
+          console.error("Error getting address:", error);
+        }
+      })();
+    }
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -39,6 +166,13 @@ function FoodDonation() {
       return;
     }
 
+    // Check if we have location coordinates
+    if (!userLocation) {
+      setErrorMessage("Please set your location on the map or use the detect location button");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = {
       foodName,
       foodTag,
@@ -46,6 +180,10 @@ function FoodDonation() {
       expiryDate,
       address,
       email,
+      location: {
+        type: "Point",
+        coordinates: userLocation.coordinates
+      }
     };
 
     try {
@@ -68,6 +206,7 @@ function FoodDonation() {
       setQuantity("");
       setExpiryDate("");
       setAddress("");
+      setUserLocation(null);
 
       // Redirect to the food listings page after a delay
       setTimeout(() => {
@@ -160,17 +299,61 @@ function FoodDonation() {
             />
           </div>
 
-          <div className="form_element">
+          <div className="form_element location-field">
             <label htmlFor="address">Pickup Address</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={address}
-              onChange={(event) => setAddress(event.target.value)}
-              placeholder="Enter pickup address"
-              required
-            />
+            <div className="address-input-container">
+              <input
+                type="text"
+                id="address"
+                name="address"
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+                placeholder="Enter pickup address"
+                required
+              />
+              <button 
+                type="button" 
+                className={`detect-location-btn ${locationStatus}`}
+                onClick={detectUserLocation}
+                disabled={locationStatus === "detecting"}
+              >
+                <FaMapMarkerAlt />
+                {locationStatus === "detecting" ? "Detecting..." : "Detect Location"}
+              </button>
+            </div>
+            
+            {locationStatus === "success" && (
+              <div className="location-success">
+                <FaMapMarkerAlt /> Location detected successfully!
+              </div>
+            )}
+            
+            {locationStatus === "error" && (
+              <div className="location-error">
+                <FaExclamationTriangle /> {locationError}
+              </div>
+            )}
+          </div>
+
+          <div className="form_element map-container">
+            <label>Select Location on Map (Click to set pickup point)</label>
+            <MapContainer 
+              center={mapCenter} 
+              zoom={mapZoom} 
+              style={{ height: '300px', width: '100%', zIndex: 0 }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <LocationMarker 
+                position={userLocation ? [userLocation.lat, userLocation.lng] : null} 
+                setPosition={handleMarkerPosition}
+              />
+            </MapContainer>
+            <div className="map-instructions">
+              <FaMapMarkerAlt /> Click on the map to set the exact pickup location
+            </div>
           </div>
 
           <button 

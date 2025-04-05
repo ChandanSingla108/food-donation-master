@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        role: {
+            type: String,
+            enum: ["donor", "needy"],
+            required: true,
+        },
         food: [
             {
                 type: mongoose.Schema.Types.ObjectId,

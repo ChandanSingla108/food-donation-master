@@ -25,27 +25,47 @@ const Login = () => {
     const { email, password } = formData;
     
     try {
-      const res = await axios.post("http://localhost:3000/signin", {
+      const res = await axios.post("http://localhost:3000/login", {
         email,
         password,
       });
-
-      console.log("Login response:", res.data);
       
-      // Store session data
-      const { token, existingUser } = res.data;
-      localStorage.setItem("user", JSON.stringify(existingUser));
-      localStorage.setItem("token", token);
-      localStorage.setItem("email", email);
+      console.log("Login response data:", res.data); // Debug the response structure
       
-      // Manually trigger storage event for components listening to changes
-      window.dispatchEvent(new Event('storage'));
+      if (res.data && res.data.token) {
+        // Check for user data in different possible response structures
+        const userData = res.data.existingUser || res.data.user || {};
+        
+        if (!userData._id) {
+          console.warn("Warning: User data is missing ID", userData);
+        }
+        
+        // Save user data to localStorage with full object
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("email", email);
+        
+        // Force a full refresh to make sure localStorage changes are applied
+        window.dispatchEvent(new Event('storage'));
 
-      // Redirect to dashboard or home page
-      navigate("/dashboard");
+        if (userData && userData.role) {
+          const roleMessage = userData.role === 'donor' 
+            ? "Welcome back, Donor! Ready to help others?" 
+            : "Welcome! Let's find some food for you today.";
+          
+          alert(roleMessage);
+        } else {
+          alert("Login successful!");
+        }
+
+        navigate("/dashboard");
+      } else {
+        setErrorMessage("User data not found in server response. Please try again.");
+        console.error("Unexpected response structure:", res.data);
+      }
     } catch (err) {
       console.error("Login error:", err);
-      setErrorMessage(err.response?.data?.message || "Invalid email or password. Please try again.");
+      setErrorMessage(err.response?.data?.message || "Invalid credentials. Please try again.");
     } finally {
       setLoading(false);
     }

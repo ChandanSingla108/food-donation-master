@@ -133,3 +133,29 @@
     width: 80%;
     max-width: 500px;
   }
+
+  .map-container {
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .map-container label {
+    margin-bottom: 10px;
+    display: block;
+    font-weight: 600;
+  }
+
+  .map-instructions {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }

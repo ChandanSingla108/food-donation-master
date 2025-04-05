@@ -8,8 +8,13 @@ const Food = () => {
   const [selectedTag, setSelectedTag] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
+    // Get user role from localStorage
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setUserRole(user.role || "");
+    
     fetchFoodItems();
   }, []);
 
@@ -65,6 +70,18 @@ const Food = () => {
         </div>
       </div>
       
+      {userRole === "needy" && (
+        <div className="role-message recipient">
+          <p>👋 As a food recipient, you can request any available food items below.</p>
+        </div>
+      )}
+      
+      {userRole === "donor" && (
+        <div className="role-message donor">
+          <p>🙏 Thank you for being a donor! Here you can see all available food items, including yours.</p>
+        </div>
+      )}
+      
       {error && <div className="error-message">{error}</div>}
       
       {loading ? (
@@ -87,6 +104,7 @@ const Food = () => {
               address={item.address}
               tag={item.foodTag}
               donorName={item.user?.name || "Anonymous"}
+              userRole={userRole}
             />
           ))}
         </div>

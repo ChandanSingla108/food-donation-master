@@ -122,6 +122,35 @@ li {
   transition: all 0.3s ease-in-out;
 }
 
+.donor-view {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px dashed #ccc;
+}
+
+.food-status-text {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+}
+
+.distance-item {
+  background-color: #e8f5e9;
+  padding: 5px 10px;
+  border-radius: 15px;
+  margin-top: 5px;
+  display: inline-flex !important;
+  width: auto !important;
+}
+
+.distance-item .icons-name {
+  color: #4caf50;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   .card {

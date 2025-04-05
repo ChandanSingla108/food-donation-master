@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { FaCalendarAlt, FaCartArrowDown, FaHome, FaUser } from "react-icons/fa";
+import { FaCalendarAlt, FaCartArrowDown, FaHome, FaUser, FaMapMarkerAlt } from "react-icons/fa";
 import "./FoodCard.css";
 import vegIcon from "../assets/veg.svg";
 import nonVegIcon from "../assets/non-veg.svg";
 
-const FoodCard = ({ id, name, quantity, date, address, tag, donorName }) => {
+const FoodCard = ({ id, name, quantity, date, address, tag, donorName, userRole, distance }) => {
   const [statusMessage, setStatusMessage] = useState(""); 
   const [requestSent, setRequestSent] = useState(false);
 
@@ -64,17 +64,31 @@ const FoodCard = ({ id, name, quantity, date, address, tag, donorName }) => {
               </span>
               <span>Donor: {donorName}</span>
             </li>
+            {distance && (
+              <li className="distance-item">
+                <span className="icons-name">
+                  <FaMapMarkerAlt />
+                </span>
+                <span>{distance} km away</span>
+              </li>
+            )}
           </ul>
         </div>
 
         {statusMessage && <div className="status-message">{statusMessage}</div>}
 
-        <button 
-          className={`food-btn ${requestSent ? 'requested' : ''}`} 
-          onClick={handleCheckStatus}
-        >
-          {requestSent ? 'Check Request Status' : 'Request Food'}
-        </button>
+        {userRole === "needy" ? (
+          <button 
+            className={`food-btn ${requestSent ? 'requested' : ''}`} 
+            onClick={handleCheckStatus}
+          >
+            {requestSent ? 'Check Request Status' : 'Request Food'}
+          </button>
+        ) : (
+          <div className="donor-view">
+            <p className="food-status-text">This food is available for recipients to request</p>
+          </div>
+        )}
       </div>
     </div>
   );
