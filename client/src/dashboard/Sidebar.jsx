@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FaHome, FaUser, FaListAlt, FaHandsHelping } from "react-icons/fa";
+import { FaHome, FaUser, FaListAlt, FaHandsHelping, FaTimes } from "react-icons/fa";
+import "./Sidebar.css";
 
-const Sidebar = ({ user, isSiderOpen, setIsSiderOpen }) => {
+const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const { pathname } = useLocation();
   const [active, setActive] = useState("");
   const navigate = useNavigate();
@@ -31,109 +32,58 @@ const Sidebar = ({ user, isSiderOpen, setIsSiderOpen }) => {
     setActive(pathname.substring(1));
   }, [pathname]);
 
+  const closeSidebar = () => {
+    if (window.innerWidth <= 768) {
+      setIsSidebarOpen(false);
+    }
+  };
+
   return (
-    <div
-      className="sidebar"
-      style={{
-        height: "100%",
-        width: "20%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-start",
-        padding: "1rem 2rem",
-        backgroundColor: "#ffffff",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        bottom: 0,
-        zIndex: 999,
-        margin: "10px",
-      }}
-    >
-      <div
-        className="sidebar__header"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          fontSize: "2rem",
-        }}
-      >
-        <div className="sidebar__header__logo">
-          <Link to="/">
-            <h1>
-              <span style={{ color: "#000000", fontSize: "1.5rem" }}>
-                FOOD<span style={{ color: "red", fontSize: "2rem" }} >RESCUE</span>
-              </span>
-            </h1>
-          </Link>
-        </div>
+    <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
+      <div className="sidebar-header">
+        <Link to="/" className="logo-link">
+          <h1>
+            <span className="logo-text">
+              FOOD<span className="logo-highlight">RESCUE</span>
+            </span>
+          </h1>
+        </Link>
+        <button className="close-sidebar" onClick={() => setIsSidebarOpen(false)}>
+          <FaTimes />
+        </button>
       </div>
-      <div
-        className="sidebar__body"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-          justifyContent: "center",
-        }}
-      >
-        {sideItems.map((item) => (
+      
+      <div className="sidebar-body">
+        {sideItems.map((item, index) => (
           <div
-            className="sidebar__body__item"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-              cursor: "pointer",
-              color: active === item.path.substring(1) ? "#fff" : "",
-              backgroundColor: active === item.path.substring(1) ? "red" : "",
-              padding: "1rem 1.5rem",
-              borderRadius: "0.5rem",
+            key={index}
+            className={`sidebar-item ${active === item.path.substring(1) ? "active" : ""}`}
+            onClick={() => {
+              navigate(item.path);
+              closeSidebar();
             }}
-            onClick={() => navigate(item.path)}
           >
-            <div className="sidebar__body__item__icon">
-              <i className="fas fa-home">{item.logo}</i>
-            </div>
-            <div
-              className={`sidebar__body__item__text ${
-                active === item.path.substring(1) ? "active" : ""
-              }`}
-            >
-              {item.text}
-            </div>
+            <div className="sidebar-item-icon">{item.logo}</div>
+            <div className="sidebar-item-text">{item.text}</div>
           </div>
         ))}
+        
         {email === "abhyuday7176@gmail.com" && (
           <div
-            className="sidebar__body__item"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1rem",
-              cursor: "pointer",
-              color: active === "admin" ? "#fff" : "",
-              backgroundColor: active === "admin" ? "red" : "",
-              padding: "1rem 1.5rem",
-              borderRadius: "0.5rem",
+            className={`sidebar-item ${active === "admin" ? "active" : ""}`}
+            onClick={() => {
+              navigate("/dashboard/admin");
+              closeSidebar();
             }}
-            onClick={() => navigate("/dashboard/admin")}
           >
-            <div className="sidebar__body__item__icon">
-              <i className="fas fa-home">
-                <FaUser />
-              </i>
-            </div>
-            <div
-              className={`sidebar__body__item__text ${
-                active === "admin" ? "active" : ""
-              }`}
-            >
-              Admin
-            </div>
+            <div className="sidebar-item-icon"><FaUser /></div>
+            <div className="sidebar-item-text">Admin</div>
           </div>
         )}
+      </div>
+      
+      <div className="sidebar-footer">
+        <p>© {new Date().getFullYear()} Food Rescue</p>
       </div>
     </div>
   );
