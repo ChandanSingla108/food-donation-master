@@ -9,7 +9,8 @@ const Login = () => {
     password: "",
   });
 
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   function handleChange(event) {
@@ -19,25 +20,54 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // Clear previous error message
+    setErrorMessage("");
+    setLoading(true);
     const { email, password } = formData;
     
     try {
-      const res = await axios.post("http://localhost:3000/signin", {
+      const res = await axios.post("http://localhost:3000/login", {
         email,
         password,
       });
+      
+      console.log("Login response data:", res.data); // Debug the response structure
+      
+      if (res.data && res.data.token) {
+        // Check for user data in different possible response structures
+        const userData = res.data.existingUser || res.data.user || {};
+        
+        if (!userData._id) {
+          console.warn("Warning: User data is missing ID", userData);
+        }
+        
+        // Save user data to localStorage with full object
+        localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("email", email);
+        
+        // Force a full refresh to make sure localStorage changes are applied
+        window.dispatchEvent(new Event('storage'));
 
-      console.log(res);
-      const { token } = res.data;
-      localStorage.setItem("user", JSON.stringify(res.data.existingUser));
-      localStorage.setItem("token", token);
-      localStorage.setItem("email", email);
+        if (userData && userData.role) {
+          const roleMessage = userData.role === 'donor' 
+            ? "Welcome back, Donor! Ready to help others?" 
+            : "Welcome! Let's find some food for you today.";
+          
+          alert(roleMessage);
+        } else {
+          alert("Login successful!");
+        }
 
-      navigate("/"); // Redirect to home page
+        navigate("/dashboard");
+      } else {
+        setErrorMessage("User data not found in server response. Please try again.");
+        console.error("Unexpected response structure:", res.data);
+      }
     } catch (err) {
-      console.error(err);
-      setErrorMessage("Invalid email or password. Please try again.");
+      console.error("Login error:", err);
+      setErrorMessage(err.response?.data?.message || "Invalid credentials. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,7 +78,7 @@ const Login = () => {
           <h1 className="login__heading">Login</h1>
           <p>If you are already a member, easily log in</p>
 
-          {errorMessage && <p className="error-message">{errorMessage}</p>} {/* Display error message */}
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
 
           <input
             type="text"
@@ -70,8 +100,8 @@ const Login = () => {
           />
           <a href="#">Forgot my password</a>
 
-          <button className="main__button" type="submit" id="login-btn">
-            Log in
+          <button className="main__button" type="submit" id="login-btn" disabled={loading}>
+            {loading ? "Logging in..." : "Log in"}
           </button>
 
           <div className="or">
@@ -80,7 +110,7 @@ const Login = () => {
             <hr />
           </div>
 
-          <button className="google-btn">
+          <button type="button" className="google-btn">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"

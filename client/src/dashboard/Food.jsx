@@ -6,17 +6,30 @@ import "./Food.css";
 const Food = () => {
   const [food, setFood] = useState([]);
   const [selectedTag, setSelectedTag] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [userRole, setUserRole] = useState("");
 
   useEffect(() => {
+    // Get user role from localStorage
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setUserRole(user.role || "");
+    
     fetchFoodItems();
   }, []);
 
   const fetchFoodItems = async () => {
     try {
+      setLoading(true);
+      setError("");
       const response = await axios.get("http://localhost:3000/allfoods");
+      console.log("Food data:", response.data);
       setFood(response.data);
+      setLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching food items:", error);
+      setError("Failed to load food items. Please try again later.");
+      setLoading(false);
     }
   };
 
@@ -29,65 +42,73 @@ const Food = () => {
       ? food
       : food.filter((item) => item.foodTag === selectedTag);
 
-  return (
-    <div className="food">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+  const handleRefresh = () => {
+    fetchFoodItems();
+  };
 
-          width: "100%",
-        }}
-      >
-        <h1>Food Available</h1>
-        <div
-          className="tags"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "1rem",
-          }}
-        >
-          <label htmlFor="tags">Filter by tag:</label>
-          <select
-            id="tags"
-            name="tags"
-            value={selectedTag}
-            onChange={handleTagChange}
-            style={{
-              padding: "0.5rem",
-              borderRadius: "0.5rem",
-              border: "1px solid #ccc",
-            }}
-          >
-            <option value="all">All</option>
-            <option value="veg">Veg</option>
-            <option value="nonveg">Non Veg</option>
-          </select>
+  return (
+    <div className="food-container">
+      <div className="food-header">
+        <h1>Available Food</h1>
+        <div className="filter-controls">
+          <div className="filter-section">
+            <label htmlFor="tags">Filter by type:</label>
+            <select
+              id="tags"
+              name="tags"
+              value={selectedTag}
+              onChange={handleTagChange}
+            >
+              <option value="all">All</option>
+              <option value="veg">Vegetarian</option>
+              <option value="nonveg">Non-Vegetarian</option>
+            </select>
+          </div>
+          <button onClick={handleRefresh} className="refresh-button">
+            Refresh List
+          </button>
         </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        {filteredFood.map((item) => (
-          <FoodCard
-            key={item._id}
-            name={item.foodName}
-            quantity={item.quantity}
-            date={item.expiryDate}
-            address={item.address}
-            tag={item.foodTag}
-          />
-        ))}
-      </div>
+      
+      {userRole === "needy" && (
+        <div className="role-message recipient">
+          <p>👋 As a food recipient, you can request any available food items below.</p>
+        </div>
+      )}
+      
+      {userRole === "donor" && (
+        <div className="role-message donor">
+          <p>🙏 Thank you for being a donor! Here you can see all available food items, including yours.</p>
+        </div>
+      )}
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      {loading ? (
+        <div className="loading-message">Loading available food items...</div>
+      ) : filteredFood.length === 0 ? (
+        <div className="empty-message">
+          {selectedTag === "all" 
+            ? "No food items available yet. Be the first to donate!" 
+            : `No ${selectedTag === "veg" ? "vegetarian" : "non-vegetarian"} food items available with selected filter.`}
+        </div>
+      ) : (
+        <div className="food-grid">
+          {filteredFood.map((item) => (
+            <FoodCard
+              key={item._id}
+              id={item._id}
+              name={item.foodName}
+              quantity={item.quantity}
+              date={item.expiryDate}
+              address={item.address}
+              tag={item.foodTag}
+              donorName={item.user?.name || "Anonymous"}
+              userRole={userRole}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

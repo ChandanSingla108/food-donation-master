@@ -9,7 +9,10 @@ const Signup = () => {
     email: "",
     password: "",
     number: "",
+    role: "donor", // Default role is donor
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -20,19 +23,37 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+    
     const data = {
       name: formData.name,
       email: formData.email,
       password: formData.password,
       number: formData.number,
+      role: formData.role,
     };
 
     try {
-      await axios.post("http://localhost:3000/signup", data);
-      console.log("Signup successful");
-      navigate("/"); // Redirect only after successful signup
+      const response = await axios.post("http://localhost:3000/signup", data);
+      
+      if (response.data && response.data.token) {
+        localStorage.setItem("user", JSON.stringify(response.data.newUser || response.data.user));
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("email", data.email);
+        
+        window.dispatchEvent(new Event('storage'));
+        
+        alert("Signup successful! Welcome to Food Donation.");
+        
+        navigate("/dashboard");
+      } else {
+        setError("Signup successful but received unexpected response. Please try logging in.");
+      }
     } catch (err) {
-      console.error("Signup failed:", err);
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,6 +65,8 @@ const Signup = () => {
         <form onSubmit={handleSubmit}>
           <h1>Sign-Up</h1>
           <p>Create your free account on Food-donation</p>
+          
+          {error && <div className="error-alert">{error}</div>}
 
           <input
             type="text"
@@ -52,6 +75,7 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your name"
             id="name"
+            required
           />
           <input
             type="email"
@@ -60,6 +84,7 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your email"
             id="email"
+            required
           />
           <input
             type="password"
@@ -68,6 +93,7 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your password"
             id="password"
+            required
           />
           <input
             type="tel"
@@ -76,10 +102,40 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your phone number"
             id="phone"
+            required
           />
 
-          <button type="submit" id="signup-btn">
-            Sign Up
+          <div className="role-selection">
+            <label className="role-label">I want to:</label>
+            <div className="role-options">
+              <label className={`role-option ${formData.role === 'donor' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="donor"
+                  checked={formData.role === 'donor'}
+                  onChange={handleChange}
+                />
+                <span className="role-icon">🤲</span>
+                <span className="role-text">Donate Food</span>
+              </label>
+              
+              <label className={`role-option ${formData.role === 'needy' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="needy"
+                  checked={formData.role === 'needy'}
+                  onChange={handleChange}
+                />
+                <span className="role-icon">🍽️</span>
+                <span className="role-text">Receive Food</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" id="signup-btn" disabled={loading}>
+            {loading ? "Creating Account..." : "Sign Up"}
           </button>
 
           <div className="login">

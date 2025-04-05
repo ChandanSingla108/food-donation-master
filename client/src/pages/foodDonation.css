@@ -85,6 +85,16 @@
   #foodDonation_submit-btn:hover {
     background: #0056b3;
   }
+
+  #foodDonation_submit-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+
+  #foodDonation_submit-btn:disabled:hover {
+    background: #cccccc;
+    transform: none;
+  }
   
   /* Responsive Design */
   @media (max-width: 768px) {
@@ -101,11 +111,51 @@
   .success-message {
     background-color: #d4edda; /* Light green */
     color: #155724; /* Dark green */
-    padding: 10px;
-    margin-bottom: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
     border: 1px solid #c3e6cb;
     border-radius: 5px;
     text-align: center;
     font-weight: bold;
+    width: 80%;
+    max-width: 500px;
   }
-  
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    width: 80%;
+    max-width: 500px;
+  }
+
+  .map-container {
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .map-container label {
+    margin-bottom: 10px;
+    display: block;
+    font-weight: 600;
+  }
+
+  .map-instructions {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }

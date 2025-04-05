@@ -7,14 +7,22 @@
     height: 700px;
     justify-content: center;
     border-radius: 10px;
+    position: relative;
+}
+
+.text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
 }
 
 .img-text {
-    position: relative;
-    text-align: center;
-    top: 340px;
     font-size: 70px;
     color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .img-text span {
@@ -22,12 +30,11 @@
 }
 
 h3 {
-    position: relative;
-    text-align: center;
-    top: 343px;
     font-size: 25px;
     color: white;
     font-weight: 500;
+    margin: 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .btn {
@@ -36,14 +43,70 @@ h3 {
     border: 1.5px solid transparent;
     background: rgb(250, 1, 1);
     color: white;
-    position: relative;
-    top: 355px;
-    text-align: center;
-    left: 43.5%;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: all 0.3s ease;
 }
 
 .btn:hover {
     background-color: #f5f5f5;
     cursor: pointer;
     color: black;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .img-text {
+        font-size: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .first-display {
+        height: 600px;
+    }
+    
+    .img-text {
+        font-size: 50px;
+    }
+    
+    h3 {
+        font-size: 20px;
+    }
+    
+    .btn {
+        padding: 0.8rem 1.2rem;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .first-display {
+        height: 500px;
+        margin: 10px;
+    }
+    
+    .img-text {
+        font-size: 40px;
+    }
+    
+    h3 {
+        font-size: 18px;
+    }
+    
+    .btn {
+        padding: 0.7rem 1rem;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .img-text {
+        font-size: 32px;
+    }
+    
+    h3 {
+        font-size: 16px;
+    }
 }
