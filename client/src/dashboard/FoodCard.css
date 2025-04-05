@@ -72,6 +72,17 @@ li {
   padding-left: 0;
 }
 
+.icons li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.icons li span {
+  display: inline-block;
+  line-height: 1.3;
+}
+
 .food-btn {
   width: 100%;
   background-color: #007bff;
@@ -89,6 +100,14 @@ li {
 .food-btn:hover {
   background-color: #0056b3;
   transform: scale(1.02);
+}
+
+.food-btn.requested {
+  background-color: #28a745;
+}
+
+.food-btn.requested:hover {
+  background-color: #218838;
 }
 
 .status-message {

@@ -137,6 +137,25 @@ button:hover,
   transform: scale(1.05);
 }
 
+/* Error alert styling */
+.error-alert {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* Disabled button styling */
+#signup-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   form {

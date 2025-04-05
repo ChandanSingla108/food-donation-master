@@ -27,7 +27,23 @@ export async function signUp(req, res) {
         // Generate a JWT token
         const token = jwt.sign({ email: newUser.email, id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(201).json({ newUser, token });
+        // Return a sanitized user object (without password) and token
+        const sanitizedUser = {
+            _id: newUser._id,
+            email: newUser.email,
+            name: newUser.name,
+            number: newUser.number,
+            food: newUser.food,
+            createdAt: newUser.createdAt,
+            updatedAt: newUser.updatedAt
+        };
+
+        res.status(201).json({ 
+            newUser: sanitizedUser, 
+            token,
+            message: 'Registration successful',
+            success: true
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });

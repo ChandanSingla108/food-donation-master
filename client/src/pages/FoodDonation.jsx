@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./FoodDonation.css";
 
 function FoodDonation() {
@@ -8,16 +9,40 @@ function FoodDonation() {
   const [quantity, setQuantity] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [address, setAddress] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // ✅ State for success message
-
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const navigate = useNavigate();
   const email = localStorage.getItem("email");
+  const token = localStorage.getItem("token");
+
+  // Check if user is logged in
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    
+    // Reset messages
+    setSuccessMessage("");
+    setErrorMessage("");
+    setIsSubmitting(true);
+    
+    // Form validation
+    if (!foodName || !foodTag || !quantity || !expiryDate || !address) {
+      setErrorMessage("Please fill in all fields");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = {
       foodName,
       foodTag,
-      quantity,
+      quantity: Number(quantity),
       expiryDate,
       address,
       email,
@@ -26,23 +51,33 @@ function FoodDonation() {
     try {
       const response = await axios.post("http://localhost:3000/fooddonation", {
         formData,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
 
-      console.log(response.data);
+      console.log("Donation response:", response.data);
 
-      // ✅ Show success message dynamically
-      setSuccessMessage(`Thanks ${email} for donating ${foodName}! 🎉`);
+      // Show success message
+      setSuccessMessage(`Thanks for donating ${foodName}! Your donation has been registered successfully.`);
 
-      // ✅ Clear form fields after successful submission
+      // Clear form fields after successful submission
       setFoodName("");
       setFoodTag("");
       setQuantity("");
       setExpiryDate("");
       setAddress("");
 
-      return response.data;
+      // Redirect to the food listings page after a delay
+      setTimeout(() => {
+        navigate("/dashboard/food");
+      }, 3000);
     } catch (error) {
-      console.error(error);
+      console.error("Donation error:", error);
+      setErrorMessage(error.response?.data?.message || "Failed to submit donation. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -52,10 +87,17 @@ function FoodDonation() {
         <h1 className="heading-foodd">FOOD DONATION FORM</h1>
       </div>
 
-      {/* ✅ Show success message if available */}
+      {/* Show success message if available */}
       {successMessage && (
         <div className="success-message">
           <p>{successMessage}</p>
+        </div>
+      )}
+
+      {/* Show error message if available */}
+      {errorMessage && (
+        <div className="error-message">
+          <p>{errorMessage}</p>
         </div>
       )}
 
@@ -69,18 +111,21 @@ function FoodDonation() {
               name="foodName"
               value={foodName}
               onChange={(event) => setFoodName(event.target.value)}
+              placeholder="Enter food name"
               required
             />
           </div>
 
           <div className="form_element">
-            <label htmlFor="quantity">Quantity</label>
+            <label htmlFor="quantity">Quantity (servings)</label>
             <input
               type="number"
               id="quantity"
               name="quantity"
               value={quantity}
               onChange={(event) => setQuantity(event.target.value)}
+              placeholder="Number of servings"
+              min="1"
               required 
             />
           </div>
@@ -97,8 +142,8 @@ function FoodDonation() {
               <option value="" disabled>
                 Choose type
               </option>
-              <option value="veg">Veg</option>
-              <option value="nonveg">Non Veg</option>
+              <option value="veg">Vegetarian</option>
+              <option value="nonveg">Non-Vegetarian</option>
             </select>
           </div>
 
@@ -109,26 +154,31 @@ function FoodDonation() {
               id="expiryDate"
               name="expiryDate"
               value={expiryDate}
-              min={new Date().toISOString().split("T")[0]} // ✅ Disable past dates
+              min={new Date().toISOString().split("T")[0]}
               onChange={(event) => setExpiryDate(event.target.value)}
               required
             />
           </div>
 
           <div className="form_element">
-            <label htmlFor="address">Address</label>
+            <label htmlFor="address">Pickup Address</label>
             <input
               type="text"
               id="address"
               name="address"
               value={address}
               onChange={(event) => setAddress(event.target.value)}
+              placeholder="Enter pickup address"
               required
             />
           </div>
 
-          <button id="foodDonation_submit-btn" type="submit">
-            Submit
+          <button 
+            id="foodDonation_submit-btn" 
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Donate Food"}
           </button>
         </form>
       </div>

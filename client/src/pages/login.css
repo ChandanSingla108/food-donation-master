@@ -108,6 +108,13 @@ a {
   transition: 0.5s;
 }
 
+/* Disabled button style */
+#login-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .or {
   display: flex;
   justify-content: space-between;

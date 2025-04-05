@@ -10,26 +10,42 @@ router.post("/fooddonation", async (req, res) => {
     try {
         const { foodName, foodTag, quantity, expiryDate, address, email } = req.body.formData;
 
+        // Find the user by email
         const user = await User.findOne({ email });
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-        // Save the form data to the database
-
-        const food = await Food.create({
+        // Create a new food donation
+        const food = new Food({
             foodName,
-            quantity,
+            foodTag,
+            quantity: Number(quantity), // Ensure quantity is a number
             expiryDate,
             address,
-            foodTag,
-            user: user._id,
+            user: user._id, // Associate food with the user
         });
 
+        // Save the food donation to the database
         await food.save();
+        
+        // Add the food to the user's food array and save
         user.food.push(food._id);
+        await user.save();
 
-        res.status(201).json(food);
+        res.status(201).json({ 
+            success: true, 
+            message: "Food donation created successfully", 
+            food 
+        });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server Error" });
+        console.error("Food donation error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Server Error", 
+            error: error.message 
+        });
     }
 });
 

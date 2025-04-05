@@ -10,6 +10,8 @@ const Signup = () => {
     password: "",
     number: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
@@ -20,6 +22,9 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+    
     const data = {
       name: formData.name,
       email: formData.email,
@@ -28,11 +33,22 @@ const Signup = () => {
     };
 
     try {
-      await axios.post("http://localhost:3000/signup", data);
-      console.log("Signup successful");
-      navigate("/"); // Redirect only after successful signup
+      // Sign up the user
+      const response = await axios.post("http://localhost:3000/signup", data);
+      console.log("Signup successful", response.data);
+      
+      // Store user data and token in localStorage for session management
+      localStorage.setItem("user", JSON.stringify(response.data.newUser));
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("email", response.data.newUser.email);
+      
+      // Redirect to dashboard after successful signup
+      navigate("/dashboard");
     } catch (err) {
       console.error("Signup failed:", err);
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,6 +60,8 @@ const Signup = () => {
         <form onSubmit={handleSubmit}>
           <h1>Sign-Up</h1>
           <p>Create your free account on Food-donation</p>
+          
+          {error && <div className="error-alert">{error}</div>}
 
           <input
             type="text"
@@ -52,6 +70,7 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your name"
             id="name"
+            required
           />
           <input
             type="email"
@@ -60,6 +79,7 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your email"
             id="email"
+            required
           />
           <input
             type="password"
@@ -68,6 +88,7 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your password"
             id="password"
+            required
           />
           <input
             type="tel"
@@ -76,10 +97,11 @@ const Signup = () => {
             onChange={handleChange}
             placeholder="Enter your phone number"
             id="phone"
+            required
           />
 
-          <button type="submit" id="signup-btn">
-            Sign Up
+          <button type="submit" id="signup-btn" disabled={loading}>
+            {loading ? "Creating Account..." : "Sign Up"}
           </button>
 
           <div className="login">

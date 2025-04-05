@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FaHome, FaUser, FaListAlt, FaHandsHelping, FaTimes } from "react-icons/fa";
+import { FaHome, FaUser, FaListAlt, FaHandsHelping, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import "./Sidebar.css";
 
 const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   const { pathname } = useLocation();
   const [active, setActive] = useState("");
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUserData(JSON.parse(storedUser));
+    }
+  }, [user]);
 
   const email = localStorage.getItem("email");
 
@@ -38,6 +47,13 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    navigate("/login");
+  };
+
   return (
     <div className={`sidebar ${isSidebarOpen ? "open" : "closed"}`}>
       <div className="sidebar-header">
@@ -52,6 +68,12 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
           <FaTimes />
         </button>
       </div>
+      
+      {userData && (
+        <div className="user-welcome">
+          <p>Welcome, {userData.name}</p>
+        </div>
+      )}
       
       <div className="sidebar-body">
         {sideItems.map((item, index) => (
@@ -80,6 +102,11 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
             <div className="sidebar-item-text">Admin</div>
           </div>
         )}
+        
+        <div className="sidebar-item logout-item" onClick={handleLogout}>
+          <div className="sidebar-item-icon"><FaSignOutAlt /></div>
+          <div className="sidebar-item-text">Logout</div>
+        </div>
       </div>
       
       <div className="sidebar-footer">

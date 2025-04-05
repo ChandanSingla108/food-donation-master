@@ -8,10 +8,12 @@ const foodSchema = new mongoose.Schema({
     foodTag: {
         type: String,
         required: true,
+        enum: ['veg', 'nonveg']
     },
     quantity: {
         type: Number,
         required: true,
+        min: 1
     },
     expiryDate: {
         type: Date,
@@ -22,9 +24,11 @@ const foodSchema = new mongoose.Schema({
         required: true,
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'User'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-});
+}, { timestamps: true });
 
 const Food = mongoose.model("Food", foodSchema);
 

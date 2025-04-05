@@ -9,7 +9,8 @@ const Login = () => {
     password: "",
   });
 
-  const [errorMessage, setErrorMessage] = useState(""); // State for error message
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   function handleChange(event) {
@@ -19,7 +20,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // Clear previous error message
+    setErrorMessage("");
+    setLoading(true);
     const { email, password } = formData;
     
     try {
@@ -28,16 +30,24 @@ const Login = () => {
         password,
       });
 
-      console.log(res);
-      const { token } = res.data;
-      localStorage.setItem("user", JSON.stringify(res.data.existingUser));
+      console.log("Login response:", res.data);
+      
+      // Store session data
+      const { token, existingUser } = res.data;
+      localStorage.setItem("user", JSON.stringify(existingUser));
       localStorage.setItem("token", token);
       localStorage.setItem("email", email);
+      
+      // Manually trigger storage event for components listening to changes
+      window.dispatchEvent(new Event('storage'));
 
-      navigate("/"); // Redirect to home page
+      // Redirect to dashboard or home page
+      navigate("/dashboard");
     } catch (err) {
-      console.error(err);
-      setErrorMessage("Invalid email or password. Please try again.");
+      console.error("Login error:", err);
+      setErrorMessage(err.response?.data?.message || "Invalid email or password. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,7 +58,7 @@ const Login = () => {
           <h1 className="login__heading">Login</h1>
           <p>If you are already a member, easily log in</p>
 
-          {errorMessage && <p className="error-message">{errorMessage}</p>} {/* Display error message */}
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
 
           <input
             type="text"
@@ -70,8 +80,8 @@ const Login = () => {
           />
           <a href="#">Forgot my password</a>
 
-          <button className="main__button" type="submit" id="login-btn">
-            Log in
+          <button className="main__button" type="submit" id="login-btn" disabled={loading}>
+            {loading ? "Logging in..." : "Log in"}
           </button>
 
           <div className="or">
@@ -80,7 +90,7 @@ const Login = () => {
             <hr />
           </div>
 
-          <button className="google-btn">
+          <button type="button" className="google-btn">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
