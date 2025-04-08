@@ -44,6 +44,27 @@
   height: 30px !important;
 }
 
+.status-icon {
+  margin-left: 10px;
+  font-size: 1.2rem;
+}
+
+.status-icon.pending {
+  color: #17a2b8;
+}
+
+.status-icon.accepted {
+  color: #28a745;
+}
+
+.status-icon.rejected {
+  color: #dc3545;
+}
+
+.status-icon.completed {
+  color: #6c757d;
+}
+
 .food-details {
   margin: 15px 0;
 }
@@ -95,6 +116,10 @@ li {
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 }
 
 .food-btn:hover {
@@ -103,11 +128,49 @@ li {
 }
 
 .food-btn.requested {
-  background-color: #28a745;
+  background-color: #6c757d;
 }
 
 .food-btn.requested:hover {
+  background-color: #5a6268;
+}
+
+.food-btn.pending {
+  background-color: #17a2b8;
+}
+
+.food-btn.pending:hover {
+  background-color: #138496;
+}
+
+.food-btn.accepted {
+  background-color: #28a745;
+}
+
+.food-btn.accepted:hover {
   background-color: #218838;
+}
+
+.food-btn.rejected {
+  background-color: #dc3545;
+}
+
+.food-btn.rejected:hover {
+  background-color: #c82333;
+}
+
+.food-btn.completed {
+  background-color: #6c757d;
+}
+
+.food-btn.completed:hover {
+  background-color: #5a6268;
+}
+
+.food-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .status-message {
@@ -120,6 +183,24 @@ li {
   border-radius: 5px;
   text-align: center;
   transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.error-message {
+  margin: 10px 0 15px;
+  padding: 12px;
+  background: #f8d7da;
+  color: #721c24;
+  font-weight: 500;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
 }
 
 .donor-view {
@@ -149,6 +230,67 @@ li {
 
 .distance-item .icons-name {
   color: #4caf50;
+}
+
+.request-form {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.request-message {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: inherit;
+  resize: none;
+  width: 100%;
+  transition: border-color 0.3s;
+}
+
+.request-message:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.request-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.send-request-btn, .cancel-request-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.send-request-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.send-request-btn:hover {
+  background-color: #218838;
+}
+
+.send-request-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.cancel-request-btn {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  color: #6c757d;
+}
+
+.cancel-request-btn:hover {
+  background-color: #e2e6ea;
 }
 
 /* Responsive Design */

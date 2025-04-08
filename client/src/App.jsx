@@ -20,6 +20,9 @@ import Ourwork from "./pages/ourwork";
 import DashboardHome from "./dashboard/DashboardHome";
 import DonateForm from "./dashboard/DonateForm";
 import MyDonations from "./dashboard/MyDonations";
+import NearbyFood from "./dashboard/NearbyFood";
+import RequestManagement from "./dashboard/RequestManagement";
+import MyRequests from "./dashboard/MyRequests";
 // import NotFound from "./pages/NotFound";
 
 function App() {
@@ -83,8 +86,10 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="food" element={<Food />} />
           <Route path="donate" element={<DonateForm />} />
+          <Route path="nearby" element={<NearbyFood />} />
           <Route path="mydonations" element={<MyDonations />} />
-          <Route path="nearby" element={<ReceiverDashboard />} />
+          <Route path="requests" element={<RequestManagement />} />
+          <Route path="myrequests" element={<MyRequests />} />
         </Route>
 
         {/* Fallback Route */}

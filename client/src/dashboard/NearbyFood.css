@@ -1,0 +1,45 @@
+.nearby-food-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.nearby-food-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  min-height: 400px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 1200px;
+}
+
+.nearby-food-loading h2 {
+  margin: 15px 0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nearby-food-loading p {
+  color: #6c757d;
+  margin-bottom: 0;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #007bff;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
