@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { FaUserCircle, FaHandHoldingHeart, FaUtensils, FaMapMarkedAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./DashboardHome.css";
 
 const DashboardHome = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [foodItems, setFoodItems] = useState([]); // State to store food items
+  const [donationStats, setDonationStats] = useState({
+    totalDonations: 0,
+    impactZones: 0,
+    availableFood: 0
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,40 +24,80 @@ const DashboardHome = () => {
         const parsedUser = JSON.parse(storedUser);
         console.log("Parsed user data:", parsedUser);
         setUserData(parsedUser);
+        
+        // After setting user data, fetch their donations
+        fetchUserDonations();
       } catch (error) {
         console.error("Error parsing user data:", error);
         // If JSON parse fails, try to save it as a string
         setUserData({ name: "User", role: "user" });
+        setLoading(false);
       }
     } else {
       console.warn("No user data found in localStorage");
+      setLoading(false);
     }
-    setLoading(false);
-
-    // Sample food data for demonstration
-    const sampleFoods = [
-      {
-        _id: "1",
-        name: "Homemade Pasta",
-        quantity: "5",
-        date: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
-        address: "123 Main St, City",
-        tag: "veg",
-        donorName: "John Doe"
-      },
-      {
-        _id: "2",
-        name: "Chicken Curry",
-        quantity: "3",
-        date: new Date(Date.now() + 86400000).toISOString(), // 1 day from now
-        address: "456 Oak Ave, Town",
-        tag: "non-veg",
-        donorName: "Jane Smith"
-      }
-    ];
-    
-    setFoodItems(sampleFoods);
   }, []);
+  
+  // Fetch user donations to get accurate stats
+  const fetchUserDonations = async () => {
+    try {
+      const email = localStorage.getItem("email");
+      const token = localStorage.getItem("token");
+      
+      if (!email || !token) {
+        console.warn("Missing email or token");
+        setLoading(false);
+        return;
+      }
+      
+      // Fetch user donations
+      const response = await axios.get(
+        `http://localhost:3000/mydonations?email=${email}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.data && response.data.donations) {
+        // Count total donations
+        const totalDonations = response.data.donations.length;
+        
+        // Calculate unique impact zones (locations)
+        const uniqueLocations = new Set();
+        response.data.donations.forEach(donation => {
+          if (donation.address) {
+            // Extract city or area from address for impact zone calculation
+            const addressParts = donation.address.split(',');
+            if (addressParts.length > 1) {
+              // Use the second-to-last part as the area/city
+              uniqueLocations.add(addressParts[addressParts.length - 2].trim());
+            } else {
+              uniqueLocations.add(donation.address.trim());
+            }
+          }
+        });
+        
+        // Get count of available food items
+        const availableFoodResponse = await axios.get("http://localhost:3000/availabledonations");
+        const availableFood = availableFoodResponse.data?.donations?.length || 0;
+        
+        // Update donation stats
+        setDonationStats({
+          totalDonations,
+          impactZones: uniqueLocations.size,
+          availableFood
+        });
+      }
+      
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching user donations:", error);
+      setLoading(false);
+    }
+  };
 
   // Determine which dashboard view to show based on user role
   const isDonor = userData?.role === "donor";
@@ -113,11 +158,13 @@ const DashboardHome = () => {
           </div>
           <div className="stat-content">
             <h3>{isDonor ? "Your Donations" : "Available Foods"}</h3>
-            <p className="stat-value">{foodItems?.length || 0}</p>
+            <p className="stat-value">
+              {isDonor ? donationStats.totalDonations : donationStats.availableFood}
+            </p>
             <p className="stat-description">
               {isDonor
-                ? foodItems?.length > 0 ? "Active donations available for pickup" : "You haven't made any donations yet."
-                : foodItems?.length > 0 ? "Food items available near you" : "No food items currently available."}
+                ? donationStats.totalDonations > 0 ? "Active donations available for pickup" : "You haven't made any donations yet."
+                : donationStats.availableFood > 0 ? "Food items available near you" : "No food items currently available."}
             </p>
           </div>
         </div>
@@ -128,10 +175,14 @@ const DashboardHome = () => {
           </div>
           <div className="stat-content">
             <h3>{isDonor ? "Impact Zones" : "Nearby Locations"}</h3>
-            <p className="stat-value">{foodItems?.length > 0 ? "2" : "0"}</p>
+            <p className="stat-value">
+              {isDonor ? donationStats.impactZones : donationStats.availableFood > 0 ? "Available" : "0"}
+            </p>
             <p className="stat-description">
               {isDonor
-                ? "Areas your donations have reached."
+                ? donationStats.impactZones > 0 
+                  ? `Your donations have reached ${donationStats.impactZones} area${donationStats.impactZones > 1 ? 's' : ''}.` 
+                  : "Start donating to make an impact."
                 : "Food pickup locations near you."}
             </p>
           </div>

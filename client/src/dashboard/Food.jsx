@@ -1,100 +1,174 @@
 import React, { useState, useEffect } from "react";
-import FoodCard from "./FoodCard";
 import axios from "axios";
+import { FaUtensils, FaFilter, FaSearch, FaExclamationTriangle, FaRedoAlt } from "react-icons/fa";
+import FoodCard from "./FoodCard";
 import "./Food.css";
 
 const Food = () => {
-  const [food, setFood] = useState([]);
-  const [selectedTag, setSelectedTag] = useState("all");
+  const [foodItems, setFoodItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [userRole, setUserRole] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userRole, setUserRole] = useState("needy");
 
   useEffect(() => {
-    // Get user role from localStorage
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    setUserRole(user.role || "");
-    
     fetchFoodItems();
+    determineUserRole();
   }, []);
+
+  const determineUserRole = () => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserRole(user.role || "needy");
+      }
+    } catch (error) {
+      console.error("Error determining user role:", error);
+      setUserRole("needy");
+    }
+  };
 
   const fetchFoodItems = async () => {
     try {
       setLoading(true);
-      setError("");
-      const response = await axios.get("http://localhost:3000/allfoods");
-      console.log("Food data:", response.data);
-      setFood(response.data);
-      setLoading(false);
+      const response = await axios.get("http://localhost:3000/availabledonations");
+      
+      if (response.data.success) {
+        setFoodItems(response.data.donations);
+      } else {
+        setError("Failed to fetch food items");
+      }
     } catch (error) {
       console.error("Error fetching food items:", error);
-      setError("Failed to load food items. Please try again later.");
+      setError("Error connecting to server. Please try again later.");
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleTagChange = (event) => {
-    setSelectedTag(event.target.value);
-  };
-
-  const filteredFood =
-    selectedTag === "all"
-      ? food
-      : food.filter((item) => item.foodTag === selectedTag);
-
-  const handleRefresh = () => {
+  const handleFoodRefresh = () => {
+    setLoading(true);
     fetchFoodItems();
   };
+
+  const filteredItems = foodItems.filter(item => {
+    const matchesFilter = filter === "all" || item.foodTag === filter;
+    const matchesSearch = searchQuery.trim() === "" || 
+      item.foodName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.address.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesFilter && matchesSearch;
+  });
+
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading food items...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="food-container">
       <div className="food-header">
-        <h1>Available Food</h1>
-        <div className="filter-controls">
-          <div className="filter-section">
-            <label htmlFor="tags">Filter by type:</label>
-            <select
-              id="tags"
-              name="tags"
-              value={selectedTag}
-              onChange={handleTagChange}
-            >
-              <option value="all">All</option>
-              <option value="veg">Vegetarian</option>
-              <option value="nonveg">Non-Vegetarian</option>
-            </select>
+        <h1><FaUtensils /> Available Food Donations</h1>
+        <button className="refresh-btn" onClick={handleFoodRefresh} title="Refresh food listings">
+          <FaRedoAlt /> Refresh
+        </button>
+      </div>
+
+      <div className="food-controls">
+        <div className="search-filter-wrapper">
+          <div className="search-box">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name or location..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            {searchQuery && (
+              <button 
+                className="clear-search" 
+                onClick={() => setSearchQuery("")}
+                title="Clear search"
+              >
+                ×
+              </button>
+            )}
           </div>
-          <button onClick={handleRefresh} className="refresh-button">
-            Refresh List
-          </button>
+          
+          <div className="filter-options">
+            <span className="filter-label"><FaFilter /> Filter:</span>
+            <div className="filter-buttons">
+              <button 
+                className={`filter-btn ${filter === "all" ? "active" : ""}`}
+                onClick={() => setFilter("all")}
+              >
+                All
+              </button>
+              <button 
+                className={`filter-btn veg ${filter === "veg" ? "active" : ""}`}
+                onClick={() => setFilter("veg")}
+              >
+                Vegetarian
+              </button>
+              <button 
+                className={`filter-btn non-veg ${filter === "non-veg" ? "active" : ""}`}
+                onClick={() => setFilter("non-veg")}
+              >
+                Non-Vegetarian
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="results-summary">
+          {filteredItems.length > 0 ? (
+            <p>Showing {filteredItems.length} of {foodItems.length} available food donations</p>
+          ) : searchQuery || filter !== "all" ? (
+            <p>No results match your current filters</p>
+          ) : (
+            <p>No food donations are available at the moment</p>
+          )}
         </div>
       </div>
-      
-      {userRole === "needy" && (
-        <div className="role-message recipient">
-          <p>👋 As a food recipient, you can request any available food items below.</p>
+
+      {error && (
+        <div className="error-message">
+          <FaExclamationTriangle />
+          <p>{error}</p>
         </div>
       )}
-      
-      {userRole === "donor" && (
-        <div className="role-message donor">
-          <p>🙏 Thank you for being a donor! Here you can see all available food items, including yours.</p>
-        </div>
-      )}
-      
-      {error && <div className="error-message">{error}</div>}
-      
-      {loading ? (
-        <div className="loading-message">Loading available food items...</div>
-      ) : filteredFood.length === 0 ? (
-        <div className="empty-message">
-          {selectedTag === "all" 
-            ? "No food items available yet. Be the first to donate!" 
-            : `No ${selectedTag === "veg" ? "vegetarian" : "non-vegetarian"} food items available with selected filter.`}
+
+      {filteredItems.length === 0 ? (
+        <div className="no-food-message">
+          <FaExclamationTriangle />
+          <h3>No food items found</h3>
+          <p>
+            {searchQuery || filter !== "all" 
+              ? "There are no available food donations matching your criteria. Try adjusting your filters."
+              : "There are no available food donations at the moment. Please check back later."}
+          </p>
+          {(searchQuery || filter !== "all") && (
+            <button 
+              className="reset-filters-btn" 
+              onClick={() => {
+                setSearchQuery("");
+                setFilter("all");
+              }}
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
       ) : (
         <div className="food-grid">
-          {filteredFood.map((item) => (
+          {filteredItems.map(item => (
             <FoodCard
               key={item._id}
               id={item._id}
@@ -105,6 +179,8 @@ const Food = () => {
               tag={item.foodTag}
               donorName={item.user?.name || "Anonymous"}
               userRole={userRole}
+              onRequestSuccess={handleFoodRefresh}
+              elementId={`food-card-${item._id}`}
             />
           ))}
         </div>

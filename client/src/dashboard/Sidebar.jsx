@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { FaHome, FaUser, FaListAlt, FaHandsHelping, FaTimes, FaSignOutAlt, FaMapMarkedAlt } from "react-icons/fa";
+import { FaHome, FaUser, FaListAlt, FaHandsHelping, FaTimes, FaSignOutAlt, FaMapMarkedAlt, FaPhone } from "react-icons/fa";
 import "./Sidebar.css";
 
 const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
@@ -13,7 +13,16 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
     // Get user data from localStorage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUserData(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        // Ensure number is stored properly (might be stored as 'number' field)
+        if (!parsedUser.phone && parsedUser.number) {
+          parsedUser.phone = parsedUser.number;
+        }
+        setUserData(parsedUser);
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
     }
   }, [user]);
 
@@ -22,11 +31,6 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
   // Different menu items based on user role
   const getSideItems = () => {
     const baseItems = [
-      {
-        text: "Home",
-        logo: <FaHome />,
-        path: "/dashboard",
-      },
       {
         text: "Profile",
         logo: <FaUser />,
@@ -46,11 +50,23 @@ const Sidebar = ({ user, isSidebarOpen, setIsSidebarOpen }) => {
         logo: <FaHandsHelping />,
         path: "/dashboard",
       });
+      // Add donation requests management for donors
+      baseItems.push({
+        text: "Requests",
+        logo: <FaListAlt />,
+        path: "/dashboard/requests",
+      });
     } else if (userData?.role === 'needy') {
       baseItems.splice(1, 0, {
         text: "Nearby Food",
         logo: <FaMapMarkedAlt />,
         path: "/dashboard/nearby",
+      });
+      // Add my requests for recipients
+      baseItems.push({
+        text: "My Requests",
+        logo: <FaListAlt />,
+        path: "/dashboard/myrequests",
       });
     }
     

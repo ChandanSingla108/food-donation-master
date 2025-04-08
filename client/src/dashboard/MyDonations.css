@@ -198,6 +198,57 @@
   margin-bottom: 15px;
 }
 
+/* Donation Statistics Summary */
+.donation-stats-summary {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stats-card {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  flex: 1;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+}
+
+.stats-card h3 {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #007bff;
+  margin: 10px 0;
+}
+
+.stat-description {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.impact-zone-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.impact-icon {
+  font-size: 1.5rem;
+  color: #28a745;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .my-donations-header {
@@ -213,6 +264,19 @@
   .filter-btn {
     flex: 1;
     text-align: center;
+  }
+  
+  .donation-stats-summary {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .stats-card {
+    padding: 15px;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
   }
 }
 

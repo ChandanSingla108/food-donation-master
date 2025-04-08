@@ -1,73 +1,97 @@
 import mongoose from "mongoose";
 
-const foodSchema = new mongoose.Schema({
+const requestSchema = new mongoose.Schema({
+  requesterId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  requesterName: {
+    type: String,
+    required: true
+  },
+  requesterEmail: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    default: "I would like to request this food donation"
+  },
+  status: {
+    type: String,
+    enum: ["pending", "accepted", "rejected", "completed"],
+    default: "pending"
+  },
+  requestDate: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: true });
+
+const foodSchema = new mongoose.Schema(
+  {
     foodName: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     foodTag: {
-        type: String,
-        enum: ['veg', 'non-veg'],
-        default: 'veg'
+      type: String,
+      enum: ["veg", "non-veg"],
+      required: true,
     },
     quantity: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
     expiryDate: {
-        type: Date,
-        required: true
+      type: Date,
+      required: true,
     },
     address: {
-        type: String,
-        required: true
-    },
-    description: {
-        type: String,
-        default: ""
+      type: String,
+      required: true,
     },
     location: {
-        type: {
-            type: String,
-            default: "Point"
-        },
-        coordinates: {
-            type: [Number],
-            default: [0, 0]
-        }
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point'
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        default: [0, 0]
+      }
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     donorName: {
-        type: String,
-        default: "Anonymous"
+      type: String
     },
     status: {
-        type: String,
-        enum: ['available', 'reserved', 'completed'],
-        default: 'available'
+      type: String,
+      enum: ["available", "reserved", "completed"],
+      default: "available"
     },
     reservedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        default: null
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    requests: [requestSchema],
+    completedAt: {
+      type: Date,
+      default: null
     }
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-// Create a geospatial index for location based queries
-foodSchema.index({ location: '2dsphere' });
+// Create a geospatial index on the location field
+foodSchema.index({ location: "2dsphere" });
 
-const Food = mongoose.model('Food', foodSchema);
+const Food = mongoose.model("Food", foodSchema);
 
 export default Food;

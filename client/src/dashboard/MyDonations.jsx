@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaUtensils, FaEdit, FaTrash, FaInfoCircle } from "react-icons/fa";
+import { FaUtensils, FaEdit, FaTrash, FaInfoCircle, FaMapMarkedAlt } from "react-icons/fa";
 import FoodCard from "./FoodCard";
 import "./MyDonations.css";
 
@@ -9,6 +9,10 @@ const MyDonations = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all"); // all, active, completed
+  const [stats, setStats] = useState({
+    totalDonations: 0,
+    impactZones: 0
+  });
 
   useEffect(() => {
     fetchMyDonations();
@@ -39,9 +43,31 @@ const MyDonations = () => {
       console.log("My donations:", response.data);
       
       if (response.data && Array.isArray(response.data.donations)) {
-        setDonations(response.data.donations);
+        const donationData = response.data.donations;
+        setDonations(donationData);
+        
+        // Calculate statistics
+        const uniqueLocations = new Set();
+        donationData.forEach(donation => {
+          if (donation.address) {
+            // Extract city or area from address for impact zone calculation
+            const addressParts = donation.address.split(',');
+            if (addressParts.length > 1) {
+              // Use the second-to-last part as the area/city
+              uniqueLocations.add(addressParts[addressParts.length - 2].trim());
+            } else {
+              uniqueLocations.add(donation.address.trim());
+            }
+          }
+        });
+        
+        setStats({
+          totalDonations: donationData.length,
+          impactZones: uniqueLocations.size
+        });
       } else {
         setDonations([]);
+        setStats({ totalDonations: 0, impactZones: 0 });
       }
     } catch (error) {
       console.error("Error fetching donations:", error);
@@ -70,6 +96,16 @@ const MyDonations = () => {
       
       // Update the list after deletion
       setDonations(donations.filter(donation => donation._id !== donationId));
+      
+      // Update stats after deletion
+      setStats(prevStats => ({
+        ...prevStats,
+        totalDonations: prevStats.totalDonations - 1
+      }));
+      
+      // We should recalculate impact zones here, but for simplicity,
+      // we'll just refresh the entire list
+      fetchMyDonations();
     } catch (error) {
       console.error("Error deleting donation:", error);
       alert("Failed to delete donation. Please try again.");
@@ -122,6 +158,26 @@ const MyDonations = () => {
           >
             Completed
           </button>
+        </div>
+      </div>
+      
+      {/* Donation Statistics Summary */}
+      <div className="donation-stats-summary">
+        <div className="stats-card">
+          <h3>Total Donations</h3>
+          <p className="stat-number">{stats.totalDonations}</p>
+        </div>
+        <div className="stats-card">
+          <h3>Impact Zones</h3>
+          <div className="impact-zone-content">
+            <FaMapMarkedAlt className="impact-icon" />
+            <p className="stat-number">{stats.impactZones}</p>
+          </div>
+          <p className="stat-description">
+            {stats.impactZones > 0 
+              ? `Your donations have reached ${stats.impactZones} area${stats.impactZones > 1 ? 's' : ''}` 
+              : "Start donating to make an impact"}
+          </p>
         </div>
       </div>
 

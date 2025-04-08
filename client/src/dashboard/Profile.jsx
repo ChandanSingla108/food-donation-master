@@ -11,7 +11,7 @@ const Profile = () => {
   const user = userData ? JSON.parse(userData) : null;
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user ? user.name : "");
-  const [number, setNumber] = useState(user ? user.number : "");
+  const [phone, setPhone] = useState(user ? (user.phone || user.number || "") : "");
   const [email, setEmail] = useState(user ? user.email : "");
 
   if (!user) {
@@ -36,7 +36,7 @@ const Profile = () => {
   const handleCancelEdit = () => {
     setEditing(false);
     setName(user.name);
-    setNumber(user.number);
+    setPhone(user.phone || user.number || "");
     setEmail(user.email);
   };
 
@@ -45,11 +45,20 @@ const Profile = () => {
       const response = await axios.put("http://localhost:3000/update", {
         id: user._id,
         name,
-        number,
+        number: phone,
+        phone: phone,
         email,
       });
-      console.log(response.data);
-      localStorage.setItem("user", JSON.stringify(response.data));
+
+      const updatedUser = {
+        ...user,
+        name,
+        number: phone,
+        phone: phone,
+        email,
+      };
+
+      localStorage.setItem("user", JSON.stringify(updatedUser));
       setEditing(false);
     } catch (error) {
       console.error(error);
@@ -77,16 +86,19 @@ const Profile = () => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="Name"
                 />
                 <input
                   type="text"
-                  value={number}
-                  onChange={(e) => setNumber(e.target.value)}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Phone Number"
                 />
                 <input
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
                 />
                 <button onClick={handleSaveChanges}>Save</button>
                 <button onClick={handleCancelEdit}>Cancel</button>
@@ -109,7 +121,7 @@ const Profile = () => {
                   <span className="icon">
                     <BsFillTelephoneFill />
                   </span>
-                  <span className="title"> {user.number}</span>
+                  <span className="title"> {phone || "Not provided"}</span>
                 </li>
               </ul>
             ) : null}
